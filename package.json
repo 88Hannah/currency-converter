@@ -1,0 +1,31 @@
+{
+  "name": "currency-converter",
+  "version": "1.0.0",
+  "description": "A currency converter which uses APIs",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d lib --presets=@babel/preset-env",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/88Hannah/currency-converter.git"
+  },
+  "author": "Hannah Sangar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/88Hannah/currency-converter/issues"
+  },
+  "homepage": "https://github.com/88Hannah/currency-converter#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.10.1"
+  },
+  "browserslist": [
+    "defaults"
+  ]
+}
