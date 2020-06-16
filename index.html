@@ -10,14 +10,37 @@
 
     <h1>Currency Converter</h1>
 
-    <button type="button" id="button">Click Me</button>
-    <div id="content"></div>
+    <select type="text" list="currencyFromOptions" id="currencyFrom">
+    <!-- <datalist id="currencyFromOptions"> 
+    </datalist> -->
+    </select>
+
+    <select type="text" list="currencyToOptions" id="currencyTo">
+    <!-- <datalist id="currencyToOptions">
+    </datalist> -->
+    </select>
+
+    <input type="number" id="fromAmount" min="0">
+    <input type="number" id="toAmount" min="0" disabled>
+
+    <button type="button" class="convert">Convert</button>
+
+
+    <div class="flags">
+        <div class="fromFlags"></div>
+        <div class="toFlags"></div>
+    </div>
+
+
+
+
+   
 
     
     <!-- <script src="src/script.js" type="module"></script> -->
-    <script src="lib/script.js"></script>
+    <!-- <script src="lib/script.js"></script> -->
     <!-- <script src="js/compiled-script.js"></script> -->
-    <!-- <script src="src/script.js"></script> -->
+    <script src="src/script.js"></script>
 
 </body>
 </html> 
