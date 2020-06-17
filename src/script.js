@@ -4,35 +4,39 @@
 
 const CurrencyController = (function() {
 
-    async function getCurrencyNames() {
+    // Returns an object where the key is the currency code and the value is the currency name
+    getCurrencyNames = async () => {
         try {
             const jsonCurrencyNames = await fetch(`https://openexchangerates.org/api/currencies.json?app_id=ad5bc39fc8ff4b4ba0d8eb9a6fd6d525`)
             const currencyNamesObject = await jsonCurrencyNames.json();
             return currencyNamesObject;
         } catch(error) {
-            alert(error);
+            console.log(`There was a problem in the getCurrencyNames function with the error message: ${error}`);
         };
     };  
     
 
-    async function getAvailableCurrencies() {
+    // Returns an object with keys: base and rates. 
+    // The value of rates is an object with currency code keys and exchange rate values
+    getAvailableCurrencies = async () => {
         try{
             const jsonLatestEuroRates = await fetch('https://api.openrates.io/latest?')
             const latestEuroRates = await jsonLatestEuroRates.json();
             return latestEuroRates;
         } catch(error) {
-            alert(error);
+            console.log(`There was a problem in the getAvailableCurrencies function with the error message: ${error}`);
         };
     };
 
 
-    async function getAvailableCurrencyCodes() {
+    // Use the available currencies API to get an array of the currency codes
+    getAvailableCurrencyCodes = async () => {
         try{
             const availableCurrencies = await getAvailableCurrencies();
             const currencyCodeArray = Object.keys(availableCurrencies.rates);
             return currencyCodeArray;
         } catch(error) {
-            alert(error);
+            console.log(`There was a problem in the getAvailableCurrencyCodes function with the error message: ${error}`);
         };
     };
 
@@ -55,34 +59,65 @@ const CurrencyController = (function() {
                         );
                     };
                 });
-                console.log(currencyNameAndCode);
                 return currencyNameAndCode;
             } catch(error) {
-                alert(error);
+                console.log(`There was a problem in the getCurrencies function with the error message: ${error}`);
             };  
         },
 
 
-        getRates: async base => {
-            try {
-                const jsonRates = await fetch(`https://api.openrates.io/latest?base=${base}`);
-                const rates = await jsonRates.json();
-                return rates;
-            } catch(error) {
-                alert(error);
+        // A class for each currency with the required currency methods
+        Currency: class {
+            constructor(code, currencyName) {
+                this.currencyCode = code;
+                this.currencyName = currencyName;
+                this.ratesDate = '';
+                this.exchangeRates = [];
+                this.countriesUsed = [];
             }
-        },
 
 
-        getFlagData: async currency => {
-            try {
-                const jsonFlagData = await fetch(`https://restcountries.eu/rest/v2/currency/${currency}?fields=name;flag`)
-                const flagData = await jsonFlagData.json();
-                return flagData;
-            } catch(error) {
-                alert(error);
-            };
-        }
+            async getRates() {
+                try {
+                    const jsonRatesData = await fetch(`https://api.openrates.io/latest?base=${this.currencyCode}`);
+                    const ratesData = await jsonRatesData.json();
+                    this.ratesDate = ratesData.date
+                    
+                    // Clear the array of previous data
+                    this.exchangeRates = [];
+
+                    for (const currencyCode in ratesData.rates) {
+                        this.exchangeRates.push({
+                            exchangeCode: currencyCode,
+                            exchangeRate: ratesData.rates[currencyCode]
+                        })
+                    };
+
+                } catch(error) {
+                    console.log(`There was a problem in the getRates function with the error message: ${error}`);
+                };
+            }
+
+
+            async getFlagData() {
+                try {
+                    const jsonFlagData = await fetch(`https://restcountries.eu/rest/v2/currency/${this.currencyCode}?fields=name;flag`)
+                    const flagData = await jsonFlagData.json();
+                    
+                    flagData.forEach(country => {
+
+                        this.countriesUsed.push({
+                            countryName: country.name,
+                            flagURL: country.flag
+                        });
+                    });
+
+                } catch(error) {
+                    console.log(`There was a problem in the getFlagData function with the error message: ${error}`);
+                };
+            }
+
+        } // End of the currency class
 
     } //End of the currency controller return
 })();
@@ -125,7 +160,7 @@ const UIController = (function() {
         populateCurrencies: (currencyArray, HTMLelement) => {
             currencyArray.forEach(currency => {
                 HTMLelement.insertAdjacentHTML('beforeend', `
-                   <option data-code=${currency.code}>${currency.currencyName} (${currency.code})</option>
+                   <option data-code=${currency.currencyCode}>${currency.currencyName} (${currency.currencyCode})</option>
                 `);
             });
         },
@@ -153,8 +188,8 @@ const UIController = (function() {
             HTMLelement.innerHTML = '';
 
             dataArray.forEach(country =>{
-                const name = country.name;
-                const flag = country.flag;
+                const name = country.countryName;
+                const flag = country.flagURL;
 
                 HTMLelement.insertAdjacentHTML('beforeend', `
                     <div>
@@ -181,53 +216,55 @@ const controller = (function(CurrencyCtrl, UICtrl) {
     const DOM = UICtrl.getDOMstrings();
 
     const state = {
-        rates: {},
-        flags: {}
+        currencies: []
     };
-  
+    
+    
+    /******** Initial set up functions ********/
 
-    async function retrieveCurrencies() {
-        if(!localStorage.currencies) {
-            try {
+    initialiseStateCurrencies = async () => {
+        try {
             const currencies = await CurrencyCtrl.getCurrencies();
-            localStorage.setItem('currencies', JSON.stringify(currencies));
-            } catch (error) {
-                alert(error);
-            };
+            currencies.forEach(object => {
+                state.currencies.push(new CurrencyCtrl.Currency(object.code, object.currencyName));
+            });
+        }  catch(error) {
+            console.log(`The populateStateCurrencies function failed with this error: ${error}`);
         };
     };
-
-
-    displayCurrencies = () => {
-        retrieveCurrencies();
-        const currenciesArray = JSON.parse(localStorage.getItem('currencies'));
-        UICtrl.populateCurrencies(currenciesArray, DOM.currencyFromInput);
-        UICtrl.populateCurrencies(currenciesArray, DOM.currencyToInput);
+    
+    
+    displayCurrencies = async () => {
+        await initialiseStateCurrencies()
+        UICtrl.populateCurrencies(state.currencies, DOM.currencyFromInput);
+        UICtrl.populateCurrencies(state.currencies, DOM.currencyToInput);
 
     };
 
 
     setupEventListeners = async () => {
         DOM.convertButton.addEventListener('click', () => {
-            convertCurrency();
             inputData = UICtrl.getInput();
-            updateFlags(inputData.fromCurrency, DOM.fromFlags);
-            updateFlags(inputData.toCurrency, DOM.toFlags);
-            console.log(state);
+            baseCurrency = inputData.fromCurrency;
+            toCurrency = inputData.toCurrency
+            amount = inputData.amount
+            convertCurrency(baseCurrency, toCurrency, amount);
+            updateFlags(baseCurrency, DOM.fromFlags);
+            updateFlags(toCurrency, DOM.toFlags);
         });
     };
 
     
-    async function retrieveRates(base) {
+    /******** Function for the rates ********/
+
+    retrieveRates = async base => {
         try {
-            const rates = await CurrencyCtrl.getRates(base);
-            state.rates[base] = rates;
-            return rates;
+            await state.currencies.find(currency => currency.currencyCode === base).getRates();
         } catch (error) {
-            alert(error);
+            console.log(`There was a problem with the retrieveRates function with the error message: ${error}`);
         };
     };
-    
+
     
     checkTime = () => {
         const offset = new Date().getTimezoneOffset();
@@ -248,96 +285,70 @@ const controller = (function(CurrencyCtrl, UICtrl) {
     };
 
 
-    async function requestRates(base) {
-
+    //Calculate the rates  for the base currency and return the exchange rate required
+    requestRates= async (base, to) => {
         const compareDateLong = checkTime();
         const compareDate = compareDateLong.toISOString().split('T')[0];
-        
-        let rates;
-        // Check if the base rates are already saved
-        if(state.rates[base] && state.rates[base].date === compareDate) {
-            rates = state.rates[base];
-        // Otherwise call the API
-        } else {
+        const currentCurrency = state.currencies.find(currency => currency.currencyCode === base);
+        // Only call the API if the exchange rates are not saved or outdated
+        if (!(currentCurrency.ratesDate === compareDate)) {
             try {
-                rates = await retrieveRates(base); 
+                await retrieveRates(base); 
+                
             } catch (error) {
-                alert(error);
+                console.log(`There was a problem calling the retrieveRates function within the requestRates function with the error message: ${error}`)
             };
         };
-        return rates;  
+        const toRate = currentCurrency.exchangeRates.find(currency => currency.exchangeCode === to).exchangeRate;
+        return toRate;    
     };
 
 
-    //Get the rates needed for this current conversion
-    useRates = async (base, to) => {
-        const baseRateObject = await requestRates(base);
-        const toRate = baseRateObject.rates[to];
-        return toRate;
-    };
-
-
-    convertCurrency = async () => {
-        // Get the input object
-        const input = UICtrl.getInput();
-        const baseCurrency = input.fromCurrency;
-        const toCurrency = input.toCurrency;
-        const amount = input.amount;
-        
+    convertCurrency = async (baseCurrency, toCurrency, amount) => {        
         // Get the rates
-        const exchangeRate = await useRates(baseCurrency, toCurrency);
+        const exchangeRate = await requestRates(baseCurrency, toCurrency);
          
         // Use the rates to convert the value
         const convertedValue = (amount * exchangeRate).toFixed(2);
 
         // Display the conversion to the user
         UICtrl.displayConversion(convertedValue);
-
-        return input;
     };
 
 
-    async function retrieveFlags(code) {
-        try {
-            const flagData = await CurrencyCtrl.getFlagData(code);
-            state.flags[code] = flagData;
-            return flagData;
-        } catch (error) {
-            alert(error);
-        };
-    };
+    /******** Functions for the flags ********/
 
-
-    async function requestFlags(code) {
-   
-        let flagArray;
-        // Check if the flag data is already saved
-        if(state.flags[code]) {
-            flagArray = state.flags[code];
-        // Otherwise call the API
-        } else {
+    requestFlags = async code => {
+        const currentCurrency = state.currencies.find(currency => currency.currencyCode === code)
+        // Only call the API if the flag data isn't saved
+        if(currentCurrency.countriesUsed.length === 0) {
             try {
-                flagArray = await retrieveFlags(code); 
+                await currentCurrency.getFlagData(); 
             } catch (error) {
-                alert(error);
+                console.log(`There was a problem with the requestFlags function with the error message: ${error}`);
             };
         };
-        return flagArray;  
     };
 
 
-    updateFlags = async (currencyCode, HTMLelement) => {
-        const flagArray = await requestFlags(currencyCode);
-        UICtrl.displayFlags(flagArray, HTMLelement);
+    updateFlags = async (code, HTMLelement) => {
+        const currentCurrency = state.currencies.find(currency => currency.currencyCode === code)
+        try {
+            await requestFlags(code);
+            UICtrl.displayFlags(currentCurrency.countriesUsed, HTMLelement);
+        } catch (error) {
+            console.log(`There was a problem with the updateFlags function with the error message: ${error}`);
+        };
     };
 
 
-    // The functions initially need to be run
     return {
+        // The functions that initially need to be run
         init: () => {
-           displayCurrencies();
-           setupEventListeners();  
-        }
+            displayCurrencies();
+            setupEventListeners();  
+        },
+
     }
     
 })(CurrencyController, UIController)
