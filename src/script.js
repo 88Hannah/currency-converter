@@ -198,18 +198,18 @@ const UIController = (function() {
         },
 
 
-        displayFlags: (dataArray, HTMLelement) => {
+        displayFlags: (currencyName, dataArray, HTMLelement) => {
             // Clear previous flags
-            HTMLelement.innerHTML = '';
+            HTMLelement.innerHTML = `<p class="flags__intro">The <span class="flags__intro__currency">${currencyName}</span> is used in:<p>`;
 
             dataArray.forEach(country =>{
                 const name = country.countryName;
                 const flag = country.flagURL;
 
                 HTMLelement.insertAdjacentHTML('beforeend', `
-                    <div>
-                        <p>${name}<p>
-                        <img src="${flag}" alt="The flag of ${name}">
+                    <div class="flags__country">
+                        <p class="flags__country-name">${name}<p>
+                        <img class="flags__img" src="${flag}" alt="The flag of ${name}">
                     </div>
                 `);
             });
@@ -261,7 +261,7 @@ const controller = (function(CurrencyCtrl, UICtrl) {
         try {
             const currencies = await CurrencyCtrl.getCurrencies();
             DOM.initialLoader.style.display = "none";
-            DOM.converter.style.display = "block";
+            DOM.converter.style.display = "flex";
             currencies.forEach(object => {
                 state.currencies.push(new CurrencyCtrl.Currency(object.code, object.currencyName));
             });
@@ -401,7 +401,7 @@ const controller = (function(CurrencyCtrl, UICtrl) {
         const currentCurrency = state.currencies.find(currency => currency.currencyCode === code)
         try {
             await requestFlags(code);
-            UICtrl.displayFlags(currentCurrency.countriesUsed, HTMLelement);
+            UICtrl.displayFlags(currentCurrency.currencyName, currentCurrency.countriesUsed, HTMLelement);
         } catch (error) {
             console.log(`There was a problem with the updateFlags function with the error message: ${error}`);
         };

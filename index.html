@@ -10,34 +10,47 @@
 </head>
 <body>
 
-    <h1>Currency Converter</h1>
+    <header>
+        <div class="header__img-holder">
+            <div class="shadow-container">
+                <img class="header__img header__img--shadow" src="images/pig-shadow.jpg" alt="piggy bank">
+                <h1>Currency Converter</h1>
+            </div>
+            <div class="pig-container">
+                <img class="header__img header__img--pig" src="images/pig-square.jpg" alt="piggy bank">
+            </div>
+        </div>
+    </header>
 
-    <div class="spinner initial-loader"><i class="fas fa-spinner"></i></div>
+    <div class="spinner initial-loader"><i class="fas fa-sync-alt"></i></div>
 
     <section class="converter">
-        <select type="text" id="currencyFrom" class="data-field">
+        <select type="text" id="currencyFrom" class="data-field converter__element">
             <option disable hidden>--- Select a currency ---</option>
             <!-- Data options added in javascript -->
         </select>
         
-        <select type="text" id="currencyTo" class="data-field">
+        <input type="number" id="fromAmount" min="0" value="1" class="data-field converter__element">
+
+        <button type="button" class="switch converter__element"><i class="fas fa-arrow-up"></i> Switch Currencies <i class="fas fa-arrow-down"></i></button>
+
+        <select type="text" id="currencyTo" class="data-field converter__element">
             <option disable hidden>--- Select a currency ---</option>
             <!-- Data options added in javascript -->
         </select>
+        
+        <input type="number" id="toAmount" min="0" disabled class="data-field converter__element">
 
-        <input type="number" id="fromAmount" min="0" value="1" class="data-field">
-        <input type="number" id="toAmount" min="0" disabled class="data-field">
-
-        <button type="button" class="switch">Switch</button>
+        
     </section>
     
     <section class="flags">
-        <div class="fromFlags"></div>
-        <div class="toFlags"></div>
+        <div class="fromFlags flag-group"></div>
+        <div class="toFlags flag-group"></div>
     </section>
 
     <footer>
-        <img src="" alt="" class="logo">
+        <img src="images/logo.png" alt="" class="logo">
     </footer>
 
 

@@ -7,25 +7,134 @@
 }
 
 
-body {
+:root {
     --clr--dk-blue: #0F79AE;
     --clr-blue: #5EADE6;
-    --clr-lt-blue: #D2F5FF;
+    --clr-grey: #E6F4F1;
     --clr-orange: #E69C24;
 
     --ff-title: 'Merriweather', serif;
     --ff-body: 'Roboto', sans-serif;
 }
 
-
-h1 {
-    color: var(--clr--dk-blue);
-    font-family: var(--ff-title);
+body {
+    position: relative;
+    font-family: var(--ff-body);
+    min-height: 100vh;
+    padding-bottom: 70px;
 }
 
+section {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+header {
+    
+    height: fit-content;
+    width: 100vw;    
+}
+
+.header__img-holder {
+    display: flex;
+    width: 100vw;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 40vw;
+    max-height: 500px;
+    box-shadow: 0px 4px 6px -6px var(--clr--dk-blue);
+}
+
+.shadow-container{
+    position: relative;
+    height: 100%;
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.header__img--shadow {
+    width: 100%;
+    height: 100%;
+}
+
+.pig-container {
+    height: 100%;
+    width: 40vw;
+    max-width: 500px;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.header__img--pig {
+    width: 100%;
+    height: 100%;
+}
+
+
+h1 {
+    position: absolute;
+    color: var(--clr--dk-blue);
+    font-family: var(--ff-title);
+    font-size: 8vw;
+    line-height: 1.5em;
+    height: 24vw;
+    top: 50%;
+    left: 10%;
+    margin-top: -12vw;
+}
+
+
+@media (min-width: 1250px) {
+    h1 {
+        font-size: 100px;
+        height: 300px;
+        width: 675px;
+        top: 50%;
+        margin-top: -150px;
+    }
+    
+}
+
+/* @media (min-width: 450px) {
+
+    h1 {
+        font-size: 2.5em;
+        height: 100px;
+        margin-top: -50px;
+    }
+}
+
+
+@media (min-width: 600px) {
+
+    h1 {
+        font-size: 3em;
+        height: 120;
+        margin-top: -60px;
+    }
+}
+
+
+@media (min-width: 879px) {
+
+    h1 {
+        font-size: 3em;
+        height: 60px;
+        margin-top: -30px;
+    }
+} */
+
+
+
+
 .spinner {
+    font-size: 4em;
     width: fit-content;
     height: fit-content;
+    margin: 30px auto;
     animation-name: spin;
     animation-iteration-count: infinite;
     animation-duration: 0.8s;
@@ -44,9 +153,87 @@ h1 {
 
 .converter {
     display: none;
+    flex-direction: column;
+    /* justify-items: center; */
+    padding: 20px;
+}
+
+.converter__element {
+    padding: 10px;
+    margin: 10px 0;
+    outline-color: var(--clr-orange);
+}
+
+.converter__element option {
+    outline-color: var(--clr-orange);
+}
+
+.switch {
+    width: 60%;
+    height: 4em;
+    align-self: center;
+    background: var(--clr-orange);
+    color: white;
+    border: none;
+    border: solid 2px transparent;
+    border-radius: 2em;
+    outline: none;
+}
+
+.switch:focus {
+    border: solid 2px var(--clr--dk-blue);
 }
 
 
 
 
-/*  let {baseCurrency, toCurrency, fromAmount} = UICtrl.getInput(); */
+
+/* FLAGS */
+
+.flags__intro {
+    padding: 10px 0;
+    font-size: 1.3em;
+}
+
+.flags__intro__currency {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--clr--dk-blue);
+}
+
+
+.flags__country {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: var(--clr-grey);
+}
+
+.flags__img {
+    height: 30px;
+    border: solid 1px #aaa;
+    margin-left: 20px;
+}
+
+
+.flag-group {
+    margin-bottom: 30px;
+}
+
+
+footer {
+    background: var(--clr-blue);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+
+
+.logo {
+    width: 150px;
+    padding: 10px;
+}
+
