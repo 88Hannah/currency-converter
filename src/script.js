@@ -34,6 +34,7 @@ const CurrencyController = (function() {
         try{
             const availableCurrencies = await getAvailableCurrencies();
             const currencyCodeArray = Object.keys(availableCurrencies.rates);
+            currencyCodeArray.sort();
             return currencyCodeArray;
         } catch(error) {
             console.log(`There was a problem in the getAvailableCurrencyCodes function with the error message: ${error}`);
@@ -132,20 +133,34 @@ const CurrencyController = (function() {
 const UIController = (function() {
 
     const DOMstrings = {
-        currencyFromOptions: document.getElementById('currencyFromOptions'),
+        converter: document.querySelector('.converter'),
         currencyFromInput: document.getElementById('currencyFrom'),
-        currencyToOptions: document.getElementById('currencyToOptions'),
         currencyToInput: document.getElementById('currencyTo'),
         fromAmount: document.getElementById('fromAmount'),
         toAmount: document.getElementById('toAmount'),
-        convertButton: document.querySelector('.convert'),
+        switchButton: document.querySelector('.switch'),
         fromFlags: document.querySelector('.fromFlags'),
-        toFlags: document.querySelector('.toFlags')
+        toFlags: document.querySelector('.toFlags'),
+        initialLoader: document.querySelector('.initial-loader')
     };
 
 
     getDataCode = element => {
         return element.options[element.selectedIndex].dataset.code;
+    };    
+
+   
+    changeSelected = object => {
+        options = object.HTMLelement.getElementsByTagName('option');
+
+        for (let option of options) {
+
+            if (option.dataset.code === object.newCode) {
+                option.selected = true;
+            } else {
+                option.selected = false;
+            };
+        };
     };
 
 
@@ -160,7 +175,7 @@ const UIController = (function() {
         populateCurrencies: (currencyArray, HTMLelement) => {
             currencyArray.forEach(currency => {
                 HTMLelement.insertAdjacentHTML('beforeend', `
-                   <option data-code=${currency.currencyCode}>${currency.currencyName} (${currency.currencyCode})</option>
+                   <option data-code=${currency.currencyCode}>${currency.currencyCode}: ${currency.currencyName}</option>
                 `);
             });
         },
@@ -169,11 +184,11 @@ const UIController = (function() {
         getInput: () => {
             const fromCurrency = getDataCode(DOMstrings.currencyFromInput);
             const toCurrency = getDataCode(DOMstrings.currencyToInput);
-            const amount = DOMstrings.fromAmount.value;
+            const fromAmount = DOMstrings.fromAmount.value;
             return {
                 fromCurrency,
                 toCurrency,
-                amount
+                fromAmount,
             }
         },
 
@@ -198,7 +213,27 @@ const UIController = (function() {
                     </div>
                 `);
             });
-        }
+        },
+
+
+        displaySwitchedCurrencies: (newFromCurrency, newToCurrency) => {
+
+            switchArray = [
+                {
+                    HTMLelement: DOMstrings.currencyFromInput,
+                    newCode: newFromCurrency
+                },
+                {
+                    HTMLelement: DOMstrings.currencyToInput,
+                    newCode: newToCurrency
+                }
+            ];
+
+            switchArray.forEach(changeSelected);
+        }, 
+
+
+        getDataCode
 
     } //End of the UI controller return
 
@@ -225,6 +260,8 @@ const controller = (function(CurrencyCtrl, UICtrl) {
     initialiseStateCurrencies = async () => {
         try {
             const currencies = await CurrencyCtrl.getCurrencies();
+            DOM.initialLoader.style.display = "none";
+            DOM.converter.style.display = "block";
             currencies.forEach(object => {
                 state.currencies.push(new CurrencyCtrl.Currency(object.code, object.currencyName));
             });
@@ -243,15 +280,44 @@ const controller = (function(CurrencyCtrl, UICtrl) {
 
 
     setupEventListeners = async () => {
-        DOM.convertButton.addEventListener('click', () => {
-            inputData = UICtrl.getInput();
-            baseCurrency = inputData.fromCurrency;
-            toCurrency = inputData.toCurrency
-            amount = inputData.amount
-            convertCurrency(baseCurrency, toCurrency, amount);
-            updateFlags(baseCurrency, DOM.fromFlags);
+
+        DOM.currencyFromInput.addEventListener('change', () => {
+            let {fromCurrency, toCurrency, fromAmount} = UICtrl.getInput();
+            
+            if(UICtrl.getDataCode(DOM.currencyToInput)) {
+                convertCurrency(fromCurrency, toCurrency, fromAmount);
+            };
+            updateFlags(fromCurrency, DOM.fromFlags);
+        });
+
+        DOM.currencyToInput.addEventListener('change', () => {
+            let {fromCurrency, toCurrency, fromAmount} = UICtrl.getInput();
+            
+            if(UICtrl.getDataCode(DOM.currencyFromInput)) {
+                convertCurrency(fromCurrency, toCurrency, fromAmount);
+            };
             updateFlags(toCurrency, DOM.toFlags);
         });
+
+        DOM.fromAmount.addEventListener('keyup', () => {
+            let {fromCurrency, toCurrency, fromAmount} = UICtrl.getInput();
+
+            if(UICtrl.getDataCode(DOM.currencyFromInput) && UICtrl.getDataCode(DOM.currencyToInput)){
+                convertCurrency(fromCurrency, toCurrency, fromAmount);
+            }
+        });
+
+        DOM.switchButton.addEventListener('click', () => {
+            let {fromCurrency: newToCurrency, toCurrency: newFromCurrency, fromAmount} = UICtrl.getInput();
+
+            DOM.currencyFromInput.value = newFromCurrency;
+            DOM.currencyToInput.value = newToCurrency;
+            UICtrl.displaySwitchedCurrencies(newFromCurrency, newToCurrency)
+            convertCurrency(newFromCurrency, newToCurrency, fromAmount);
+            updateFlags(newFromCurrency, DOM.fromFlags);
+            updateFlags(newToCurrency, DOM.toFlags);
+        });
+
     };
 
     
