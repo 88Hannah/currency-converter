@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/ac82ed439f.js" crossorigin="anonymous"></script>
+        <link href="./css/style.css" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <header>
+            <div class=" header__container">
+                <img class="header__img" src="./images/pig-thin.jpg" alt="piggy bank">
+                <h1>Currency Converter</h1>
+            </div>        
+        </header>
+
+        <div class="spinner initial-loader"><i class="fas fa-redo-alt"></i></div>
+
+        <section class="converter">
+            <select type="text" id="currencyFrom" class="data-field">
+                <option disable hidden>--- Select a currency ---</option>
+                <!-- Data options added in javascript -->
+            </select>
+            
+            <input type="number" id="fromAmount" min="0" value="1" class="data-field">
+
+            <button type="button" class="switch">
+                <span class="small-screen-btn"><i class="fas fa-arrows-alt-v"></i> Switch Currencies <i class="fas fa-arrows-alt-v"></i></span>
+                <span class="big-screen-btn"><i class="fas fa-arrows-alt-h"></i> Switch Currencies <i class="fas fa-arrows-alt-h"></i></span>
+            </button>
+
+            <select type="text" id="currencyTo" class="data-field">
+                <option disable hidden>--- Select a currency ---</option>
+                <!-- Data options added in javascript -->
+            </select>
+            
+            <input type="number" id="toAmount" min="0" disabled class="data-field">
+
+            
+        </section>
+        
+        <section class="flags">
+            <div class="fromFlags flag-group"></div>
+            <div class="toFlags flag-group"></div>
+        </section>
+
+        <footer>
+            <img src="./images/logo.png" alt="" class="logo">
+        </footer>
+        
+        <script src="./bundle.js"></script>
+        <!-- <script src="js/script.js"></script> -->
+        <!-- <script src="src/script.js"></script> -->
+
+    </body>
+</html> 
