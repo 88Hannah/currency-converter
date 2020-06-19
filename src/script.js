@@ -261,7 +261,7 @@ const controller = (function(CurrencyCtrl, UICtrl) {
         try {
             const currencies = await CurrencyCtrl.getCurrencies();
             DOM.initialLoader.style.display = "none";
-            DOM.converter.style.display = "flex";
+            DOM.converter.style.display = "grid";
             currencies.forEach(object => {
                 state.currencies.push(new CurrencyCtrl.Currency(object.code, object.currencyName));
             });
@@ -340,7 +340,7 @@ const controller = (function(CurrencyCtrl, UICtrl) {
         const month = today.getMonth();
         const day = today.getDate();
         // Rates are updated at 2pm UTC each day
-        const dataChangeTime = new Date(Date.UTC(year, month, day, 14, 00));
+        const dataChangeTime = new Date(Date.UTC(year, month, day, 14, 0));
         const yesterday = new Date(todayMilliseconds - (24 * 60 * 60 * 1000));
 
         if (today < dataChangeTime) {
